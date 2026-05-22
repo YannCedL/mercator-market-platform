@@ -7,3 +7,5 @@ market intelligence platform aggregating mercury, beacon and umbra.
 ```bash
 pip install -e .
 ```
+
+
