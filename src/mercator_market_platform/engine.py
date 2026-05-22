@@ -13,3 +13,5 @@ def market_full_report(siren: str) -> ResultContract:
         value="aggregated", source="mercator_platform", observed_at=now,
         confidence=0.93, status=EpistemicStatus.FACT))
     return contract
+
+# beacon event radar connected
