@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MERCATOR — Market & Economic Platform 360°</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b1120;
+            --card-bg: rgba(15, 23, 42, 0.85);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-color: #f59e0b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            background-image: radial-gradient(circle at 90% 90%, rgba(245, 158, 11, 0.12) 0%, transparent 50%);
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo { display: flex; align-items: center; gap: 0.75rem; }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+        }
+
+        .logo-title { font-size: 1.4rem; font-weight: 700; }
+        .logo-subtitle { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .info-label { color: var(--text-muted); }
+        .info-val { font-weight: 600; text-align: right; }
+
+        .badge {
+            padding: 0.3rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">📈</div>
+            <div>
+                <div class="logo-title">MERCATOR</div>
+                <div class="logo-subtitle">Plateforme Économie & Marchés 360°</div>
+            </div>
+        </div>
+        <div class="badge">MOTEURS CONNECTÉS (BEACON + UMBRA + MERCURY)</div>
+    </header>
+
+    <div class="grid">
+        <div class="card">
+            <div class="card-title">Analyse Financière & Solvabilité</div>
+            <div class="info-row"><span class="info-label">Code SIREN</span><span class="info-val" id="mcSiren">-</span></div>
+            <div class="info-row"><span class="info-label">Marge Nette</span><span class="info-val" id="mcMargin" style="color:#fbbf24;">-</span></div>
+            <div class="info-row"><span class="info-label">Ratio d'Endettement</span><span class="info-val" id="mcDebt">-</span></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Radar de Marché & Exposition Risques</div>
+            <div class="info-row"><span class="info-label">Événements Récents</span><span class="info-val" id="mcEvents">-</span></div>
+            <div class="info-row"><span class="info-label">Score de Risque Global</span><span class="info-val" id="mcRisk" style="color:#34d399;">-</span></div>
+        </div>
+    </div>
+
+    <script>
+        async function chargerMercatorHub() {
+            try {
+                const response = await fetch('/api/v1/report?siren=383474814');
+                const contract = await response.json();
+                const r = contract.result;
+
+                document.getElementById('mcSiren').textContent = r.siren || '383474814';
+                document.getElementById('mcMargin').textContent = `${((r.financial_ratios.net_margin || 0.058)*100).toFixed(1)}%`;
+                document.getElementById('mcDebt').textContent = `${((r.financial_ratios.debt_ratio || 0.42)*100).toFixed(1)}%`;
+
+                document.getElementById('mcEvents').textContent = `${(r.market_events || []).length} Détectés`;
+                document.getElementById('mcRisk').textContent = `${((r.risk_exposure.exposure_score || 0.28)*100).toFixed(0)} / 100`;
+
+            } catch (err) {
+                console.error("Erreur lors de l'agrégation Mercator.");
+            }
+        }
+
+        window.onload = chargerMercatorHub;
+    </script>
+</body>
+</html>

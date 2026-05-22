@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from genesis_core import ResultContract, Evidence, EpistemicStatus
 from beacon_market_event_radar.radar import scan_events
 from umbra_market_exposure.exposure import calculate_exposure
-from mercury_financial_intel.parser import parse_financials
+from mercury_financial_intel.parser import get_financials
 
 def market_full_report(siren: str = "383474814") -> ResultContract:
     # genere un rapport economique 360 (evenements + exposition risques + ratios financiers)
@@ -18,7 +18,7 @@ def market_full_report(siren: str = "383474814") -> ResultContract:
     umbra_res = calculate_exposure(siren)
     
     # 3. Finances & Ratios via Mercury
-    mercury_res = parse_financials(siren)
+    mercury_res = get_financials(siren)
     
     contract.result = {
         "siren": siren,
