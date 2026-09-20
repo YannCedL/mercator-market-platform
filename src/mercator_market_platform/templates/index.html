@@ -116,6 +116,7 @@
             <div class="info-row"><span class="info-label">Code SIREN</span><span class="info-val" id="mcSiren">-</span></div>
             <div class="info-row"><span class="info-label">Marge Nette</span><span class="info-val" id="mcMargin" style="color:#fbbf24;">-</span></div>
             <div class="info-row"><span class="info-label">Ratio d'Endettement</span><span class="info-val" id="mcDebt">-</span></div>
+            <div class="info-row"><span class="info-label">Score Altman Z'</span><span class="info-val" id="mcAltman" style="color:#60a5fa;">-</span></div>
         </div>
 
         <div class="card">
@@ -130,14 +131,23 @@
             try {
                 const response = await fetch('/api/v1/report?siren=383474814');
                 const contract = await response.json();
-                const r = contract.result;
+                const r = contract.result || {};
+                const ratios = r.financial_ratios || {};
 
                 document.getElementById('mcSiren').textContent = r.siren || '383474814';
-                document.getElementById('mcMargin').textContent = `${((r.financial_ratios.net_margin || 0.058)*100).toFixed(1)}%`;
-                document.getElementById('mcDebt').textContent = `${((r.financial_ratios.debt_ratio || 0.42)*100).toFixed(1)}%`;
+                
+                const margin = ratios.net_margin ?? ratios.profit_margin_percent;
+                document.getElementById('mcMargin').textContent = margin != null ? `${typeof margin === 'number' && margin <= 1 ? (margin * 100).toFixed(1) : Number(margin).toFixed(1)}%` : 'N/D (Non Publié)';
+
+                const debt = ratios.debt_ratio;
+                document.getElementById('mcDebt').textContent = debt != null ? `${(debt * 100).toFixed(1)}%` : 'N/D (Non Publié)';
+
+                const altman = ratios.altman_z_score;
+                const altmanStatus = ratios.altman_status || '';
+                document.getElementById('mcAltman').textContent = altman != null ? `${Number(altman).toFixed(2)} (${altmanStatus})` : 'N/D (Indéterminé)';
 
                 document.getElementById('mcEvents').textContent = `${(r.market_events || []).length} Détectés`;
-                document.getElementById('mcRisk').textContent = `${((r.risk_exposure.exposure_score || 0.28)*100).toFixed(0)} / 100`;
+                document.getElementById('mcRisk').textContent = r.risk_exposure?.exposure_score != null ? `${(r.risk_exposure.exposure_score * 100).toFixed(0)} / 100` : 'N/D';
 
             } catch (err) {
                 console.error("Erreur lors de l'agrégation Mercator.");
